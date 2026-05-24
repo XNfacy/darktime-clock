@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DarkTime</title>
+<style>
+  @font-face {
+    font-family: 'Bauhaus93';
+    src: local('Bauhaus 93'),
+         url('file:///C:/Windows/Fonts/BAUHS93.TTF') format('truetype');
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #000;
+    --ink: #e0e0e0;
+    --muted: #555;
+    --faint: #1a1a1a;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Bauhaus93', 'Bauhaus 93', 'Segoe UI', 'Arial', sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    gap: clamp(24px, 5vh, 56px);
+    padding: clamp(20px, 4vh, 60px);
+    position: relative;
+    z-index: 1;
+  }
+
+  .time-block {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.5vw, 20px);
+  }
+  .digits {
+    font-size: 450px;
+    font-weight: normal;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-family: 'Bauhaus93', 'Bauhaus 93', 'Segoe UI', 'Arial', sans-serif;
+  }
+  .col {
+    font-size: 340px;
+    color: var(--muted);
+    line-height: 1;
+    transform: translateY(-0.05em);
+    font-family: 'Bauhaus93', 'Bauhaus 93', 'Segoe UI', 'Arial', sans-serif;
+  }
+
+  .date-display {
+    font-family: 'Arial Black', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: clamp(18px, 2.8vw, 30px);
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    line-height: 1.6;
+    font-weight: 300;
+    text-align: center;
+  }
+  .date-display .weekday {
+    color: var(--ink);
+    font-weight: 400;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: clamp(20px, 4vh, 48px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Arial Black', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: clamp(10px, 1.2vw, 13px);
+    color: var(--faint);
+    letter-spacing: 0.25em;
+    z-index: 1;
+  }
+
+  .grain {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<div class="main">
+  <div class="time-block">
+    <span class="digits" id="hh">00</span>
+    <span class="col">:</span>
+    <span class="digits" id="mm">00</span>
+  </div>
+  <div class="date-display" id="date"></div>
+</div>
+
+<div class="footer">DARKTIME</div>
+
+<script>
+  const $hh = document.getElementById('hh');
+  const $mm = document.getElementById('mm');
+  const $date = document.getElementById('date');
+
+  const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['January','February','March','April','May','June',
+                  'July','August','September','October','November','December'];
+  const pad = n => String(n).padStart(2, '0');
+
+  let use12h = false;
+
+  function tick() {
+    const now = new Date();
+    let h = now.getHours();
+    const m = now.getMinutes();
+
+    if (use12h) { h = h % 12 || 12; }
+
+    $hh.textContent = pad(h);
+    $mm.textContent = pad(m);
+
+    const d = now.getDate();
+    const w = weekdays[now.getDay()];
+    const mo = months[now.getMonth()];
+    $date.innerHTML = `${mo} ${d}<br><span class="weekday">${w}</span>`;
+  }
+
+  document.addEventListener('click', () => { use12h = !use12h; tick(); });
+
+  tick();
+  setInterval(tick, 1000);
+
+  document.body.style.opacity = '0';
+  document.body.style.transition = 'opacity 0.6s ease';
+  requestAnimationFrame(() => document.body.style.opacity = '1');
+</script>
+</body>
+</html>

@@ -123,6 +123,51 @@
   const pad = n => String(n).padStart(2, '0');
 
   let use12h = false;
+  let clickTimer = null;
+
+  // 全屏切换
+  function toggleFullscreen() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      const el = document.documentElement;
+      if (el.requestFullscreen) {
+        el.requestFullscreen();
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+    }
+  }
+
+  // 单击：切换 12/24 小时制
+  function handleClick() {
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+      return;
+    }
+    clickTimer = setTimeout(() => {
+      use12h = !use12h;
+      tick();
+      clickTimer = null;
+    }, 300);
+  }
+
+  // 双击：全屏切换
+  function handleDblClick() {
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+    }
+    toggleFullscreen();
+  }
+
+  document.addEventListener('click', handleClick);
+  document.addEventListener('dblclick', handleDblClick);
 
   function tick() {
     const now = new Date();
@@ -139,8 +184,6 @@
     const mo = months[now.getMonth()];
     $date.innerHTML = `${mo} ${d}<br><span class="weekday">${w}</span>`;
   }
-
-  document.addEventListener('click', () => { use12h = !use12h; tick(); });
 
   tick();
   setInterval(tick, 1000);
